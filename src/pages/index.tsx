@@ -3,6 +3,8 @@ import styles from '../styles/Home.module.scss';
 import MainLayout from '../layouts';
 import Article from '../components/article';
 import Nav from "../components/Nav";
+import WeatherNews from "../components/weather-news";
+import PickupArticle from "../components/pickup-article";
 
 export default function Home(props) {
   return (
@@ -20,6 +22,10 @@ export default function Home(props) {
         <div className={styles.main}>
           <Article title="headLines" articles={props.topArticles} />
         </div>
+        <div className={styles.aside}>
+          <WeatherNews weatherNews={props.weatherNews} />
+          <PickupArticle articles={props.pickupArticles} />
+        </div>
       </div>
     </MainLayout>
   )
@@ -28,17 +34,38 @@ export default function Home(props) {
 export const getStaticProps = async () => {
   // NewsAPIのトップ記事の情報を取得
   const pageSize = 10;
-  const apiKey = '42a8b39dc06a4ecf8e10a5908de4e2b5';
   const topReq = await fetch(
-    `https://newsapi.org/v2/top-headlines?country=jp&pageSize=${pageSize}&apiKey=${apiKey}`
+    `https://newsapi.org/v2/top-headlines?country=jp&pageSize=${pageSize}&apiKey=${process.env.NEWS_API_KEY}`
   )
   const topJson = await topReq.json();
   const topArticles = topJson?.articles;
 
+  // OpenWeatherMapの天気の情報を取得
+  const lat = 35.4122    // 取得したい地域の緯度と経度(今回は東京)
+  const lon = 139.4130
+  const exclude = "hourly,minutely"   // 取得しない情報(1時間ごとの天気情報と1分間ごとの天気情報)
+  const weatherRes = await fetch(
+    `https://api.openweathermap.org/data/2.5/onecall?lat=${lat}&lon=${lon}&units=metric&exclude=${exclude}&appid=${process.env.OPEN_WEATHER_MAP_KEY}`
+  );
+  const weatherJson = await weatherRes.json();
+  const weatherNews = weatherJson;
+
+  // NewsAPIのピックアップ記事の情報を取得
+  const keyword = "software"   // キーワードで検索(ソフトウェア)
+  const sortBy = "popularity"  // 表示順位(人気順)
+  const pickupPageSize = 5     // ページサイズ(5)
+  const pickupRes = await fetch(
+    `https://newsapi.org/v2/everything?q=${keyword}&language=jp&sortBy=${sortBy}&pageSize=${pickupPageSize}&apiKey=${process.env.NEWS_API_KEY}`
+  );
+  const pickupJson = await pickupRes.json();
+  const pickupArticles = pickupJson?.articles;
+
   return {
     props: {
       topArticles,
+      weatherNews,
+      pickupArticles
     },
-    revalidate: 60 * 10,
+    revalidate: 60,
   }
 };

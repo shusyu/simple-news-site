@@ -17,7 +17,7 @@ const WeatherNews: React.FC<Props> = ({ weatherNews }) => {
           <div className={styles.weather__heading}>
             <a>{currentWeatherMain}</a>
             <p>
-              {currentWeatherTemp.toString().slice(0, 1)}
+              {currentWeatherTemp.toString().slice(0, 2)}
               <span>˚c</span>
             </p>
           </div>

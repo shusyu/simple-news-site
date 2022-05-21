@@ -39,9 +39,8 @@ export async function getStaticPaths() {
 }
 
 export async function getStaticProps({params}) {
-  const apiKey = '42a8b39dc06a4ecf8e10a5908de4e2b5';
   const topicRes = await fetch(
-    `https://newsapi.org/v2/top-headlines?country=jp&category=${params.id}&country=jp&apiKey=${apiKey}`
+    `https://newsapi.org/v2/top-headlines?country=jp&category=${params.id}&country=jp&apiKey=${process.env.NEWS_API_KEY}`
   );
   const topicJson = await topicRes.json();
   const topicArticles = await topicJson.articles;
